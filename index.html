@@ -163,7 +163,6 @@
     </style>
 </head>
 <body>
-    <button class="button" id="backButton"><a href="#">← Volver</a></button>
     
     <div class="container">
         <h1>Julian's Wish ✨😱</h1>
@@ -178,44 +177,117 @@
     </div>
 
     <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Función para obtener parámetros de la URL
     function getUrlParameter(name) {
         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-        const results = regex.exec(location.search);
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
-    
-    // Obtener el deseo desde la URL
-    const deseo = getUrlParameter('deseo');
-    
-    // Asumiendo que tienes un elemento con ID 'deseo-contenido' donde mostrar el deseo
-    const deseoContenido = document.getElementById('deseo-contenido');
-    const mensajeSinDeseo = document.getElementById('mensaje-sin-deseo');
-    
-    if (deseo && deseo.trim() !== '') {
-        // Si hay un deseo, mostrarlo
-        if (deseoContenido) {
-            deseoContenido.textContent = deseo;
-            deseoContenido.style.display = 'block';
-        }
-        
-        // Ocultar mensaje de "no hay deseo"
-        if (mensajeSinDeseo) {
-            mensajeSinDeseo.style.display = 'none';
-        }
-    } else {
-        // Si no hay deseo, mostrar mensaje
-        if (deseoContenido) {
-            deseoContenido.style.display = 'none';
-        }
-        
-        if (mensajeSinDeseo) {
-            mensajeSinDeseo.style.display = 'block';
+
+    function getCurrentDate() {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date().toLocaleDateString('es-ES', options);
+    }
+
+    function addVisualEffects() {
+        const container = document.querySelector('.container');
+        for (let i = 0; i < 8; i++) {
+            const sparkle = document.createElement('div');
+            sparkle.classList.add('sparkle');
+            sparkle.style.left = Math.random() * 100 + '%';
+            sparkle.style.top = Math.random() * 100 + '%';
+            sparkle.style.animationDelay = Math.random() * 3 + 's';
+            container.appendChild(sparkle);
         }
     }
-});
+
+    function displayWish(wishText) {
+        if (wishText) {
+            document.getElementById('wishDisplay').innerHTML = `
+                <div class="paper">
+                    <div class="wish-content">${wishText}</div>
+                    <div class="wish-date">${getCurrentDate()}</div>
+                </div>
+            `;
+            document.getElementById('wishDisplay').style.display = 'block';
+            return true;
+        }
+        return false;
+    }
+
+    function showWish() {
+        const wishDisplay = document.getElementById('wishDisplay');
+        const wishTextFromParam = getUrlParameter('texto');
+
+        if (wishTextFromParam) {
+            // Modo alternativo: deseo en texto directo
+            displayWish(wishTextFromParam);
+            return;
+        }
+
+        const wishId = getUrlParameter('id');
+
+        if (wishId) {
+            let wishText = localStorage.getItem(wishId);
+            if (!wishText) wishText = sessionStorage.getItem(wishId);
+            if (!wishText && window.allWishes && window.allWishes[wishId]) {
+                wishText = window.allWishes[wishId];
+            }
+
+            if (displayWish(wishText)) return;
+
+            // Mostrar manual si no se encontró nada
+            document.getElementById('manualWishModal')?.style.display = 'block';
+        } else {
+            wishDisplay.innerHTML = `
+                <div class="no-wish-message">
+                    <p>No se encontró ningún deseo.</p>
+                    <p style="margin-top: 15px;">Podes escribir un nuevo deseo usando la página inicial.</p>
+                </div>
+            `;
+        }
+    }
+
+    window.addEventListener('load', function () {
+        showWish();
+        addVisualEffects();
+
+        document.getElementById('backButton').addEventListener('click', function () {
+            window.history.back();
+        });
+
+        // Modal manual
+        document.getElementById('submitManualWish')?.addEventListener('click', function () {
+            const manualWish = document.getElementById('manualWishInput').value.trim();
+            if (manualWish) {
+                displayWish(manualWish);
+                document.getElementById('manualWishModal').style.display = 'none';
+
+                const wishId = getUrlParameter('id');
+                if (wishId) {
+                    try {
+                        localStorage.setItem(wishId, manualWish);
+                        sessionStorage.setItem(wishId, manualWish);
+                    } catch (e) {
+                        console.log("Error al guardar el deseo manualmente:", e);
+                    }
+                }
+            } else {
+                alert("Por favor escribe un deseo antes de continuar.");
+            }
+        });
+
+        document.getElementById('cancelManualWish')?.addEventListener('click', function () {
+            document.getElementById('manualWishModal').style.display = 'none';
+            document.getElementById('wishDisplay').innerHTML = `
+                <div class="no-wish-message">
+                    <p>No se encontró ningún deseo.</p>
+                    <p style="margin-top: 15px;">Podes escribir un nuevo deseo usando la página inicial.</p>
+                </div>
+            `;
+        });
+    });
+
     </script>
 </body>
 </html>
