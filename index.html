@@ -15,8 +15,9 @@
         }
         
         body {
+            overscroll-behavior: none;
             font-family: 'Poppins', sans-serif;
-            background-color: #7f8796;
+            background-color: #ff000091;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -35,9 +36,14 @@
         }
         
         h1 {
-            margin-bottom: 30px;
-            color: #5d4037;
+            margin-bottom: 10px;
+            color: #543932;
             font-size: 2rem;
+        }
+        h3{
+            margin-bottom: 30px;
+            color: #32211d;
+            font-size: 0.9rem;
         }
         
         .paper {
@@ -71,7 +77,6 @@
             display: inline-block;
             padding: 12px 25px;
             background: rgba(255, 255, 255, 0.8);
-            color: #5d4037;
             text-decoration: none;
             border-radius: 30px;
             font-weight: 600;
@@ -151,87 +156,66 @@
                 font-size: 14px;
             }
         }
+        a{
+            text-decoration: none;
+            color: #3c2924;
+        }
     </style>
 </head>
 <body>
-    <button class="button" id="backButton">← Volver</button>
+    <button class="button" id="backButton"><a href="#">← Volver</a></button>
     
     <div class="container">
-        <h1>Julian's Wish ✨</h1>
+        <h1>Julian's Wish ✨😱</h1>
+        <h3>Yo lo puse en inglés no fue la ia... </h3>
         
-        <div id="wishDisplay">
+        <div id="wishDisplay" style="display: none;"></div> 
             <!-- Aquí se mostrará el deseo o un mensaje si no hay deseo -->
             <div class="no-wish-message">
-                <p>Cargando el deseo...</p>
+                <p>No se recibió ningún deseo.</p>
             </div>
-        </div>
+
     </div>
-    
+
     <script>
-        // Función para obtener parámetros de la URL
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para obtener parámetros de la URL
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    
+    // Obtener el deseo desde la URL
+    const deseo = getUrlParameter('deseo');
+    
+    // Asumiendo que tienes un elemento con ID 'deseo-contenido' donde mostrar el deseo
+    const deseoContenido = document.getElementById('deseo-contenido');
+    const mensajeSinDeseo = document.getElementById('mensaje-sin-deseo');
+    
+    if (deseo && deseo.trim() !== '') {
+        // Si hay un deseo, mostrarlo
+        if (deseoContenido) {
+            deseoContenido.textContent = deseo;
+            deseoContenido.style.display = 'block';
         }
         
-        // Función para formatear la fecha actual
-        function getCurrentDate() {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date().toLocaleDateString('es-ES', options);
+        // Ocultar mensaje de "no hay deseo"
+        if (mensajeSinDeseo) {
+            mensajeSinDeseo.style.display = 'none';
+        }
+    } else {
+        // Si no hay deseo, mostrar mensaje
+        if (deseoContenido) {
+            deseoContenido.style.display = 'none';
         }
         
-        // Función que agrega efectos visuales
-        function addVisualEffects() {
-            const container = document.querySelector('.container');
-            for (let i = 0; i < 8; i++) {
-                const sparkle = document.createElement('div');
-                sparkle.classList.add('sparkle');
-                sparkle.style.left = Math.random() * 100 + '%';
-                sparkle.style.top = Math.random() * 100 + '%';
-                sparkle.style.animationDelay = Math.random() * 3 + 's';
-                container.appendChild(sparkle);
-            }
+        if (mensajeSinDeseo) {
+            mensajeSinDeseo.style.display = 'block';
         }
-        
-        // Función para mostrar el deseo
-        function showWish() {
-            const wishId = getUrlParameter('id');
-            const wishDisplay = document.getElementById('wishDisplay');
-            
-            if (wishId && localStorage.getItem(wishId)) {
-                // Obtener el texto del deseo
-                const wishText = localStorage.getItem(wishId);
-                
-                // Crear el HTML para mostrar el deseo
-                wishDisplay.innerHTML = `
-                    <div class="paper">
-                        <div class="wish-content">${wishText}</div>
-                        <div class="wish-date">${getCurrentDate()}</div>
-                    </div>
-                `;
-            } else {
-                // Mostrar mensaje si no se encuentra el deseo
-                wishDisplay.innerHTML = `
-                    <div class="no-wish-message">
-                        <p>No se encontró ningún deseo.</p>
-                        <p style="margin-top: 15px;">Podes escribir un nuevo deseo usando la página inicial.</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // Configurar botón de volver
-        document.getElementById('backButton').addEventListener('click', function() {
-            window.history.back();
-        });
-        
-        // Inicializar la página
-        window.addEventListener('load', function() {
-            showWish();
-            addVisualEffects();
-        });
+    }
+});
     </script>
 </body>
 </html>
